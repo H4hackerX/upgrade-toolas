@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VioletPDF Editor | Professional PDF Editing Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --primary-dark: #5649c0;
+            --primary-light: #8579ef;
+            --secondary-color: #00cec9;
+            --accent-color: #fd79a8;
+            --text-color: #2d3436;
+            --text-light: #636e72;
+            --light-gray: #f5f6fa;
+            --medium-gray: #dfe6e9;
+            --dark-gray: #b2bec3;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --border-radius-sm: 4px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--white);
+            padding: 0.75rem 2rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            height: calc(100vh - 60px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: var(--white);
+            padding: 1.25rem;
+            border-right: 1px solid var(--medium-gray);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--dark-gray) var(--light-gray);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: var(--dark-gray);
+            border-radius: 3px;
+        }
+
+        .tool-section {
+            margin-bottom: 1.75rem;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: var(--medium-gray);
+            margin-left: 0.5rem;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .tool-btn {
+            background: none;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius-sm);
+            padding: 0.75rem 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .tool-btn:hover {
+            background-color: var(--light-gray);
+            border-color: var(--dark-gray);
+            transform: translateY(-2px);
+        }
+
+        .tool-btn.active {
+            border-color: var(--primary-color);
+            background-color: rgba(108, 92, 231, 0.08);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tool-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .tool-icon {
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .tool-btn.active .tool-icon {
+            color: var(--primary-color);
+        }
+
+        .tool-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1.25rem 0;
+        }
+
+        .color-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        input[type="color"] {
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            transition: var(--transition);
+        }
+
+        input[type="color"]:hover {
+            transform: scale(1.1);
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border-radius: 50%;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+
+        .property-panel {
+            background-color: var(--white);
+            padding: 1rem;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-top: 0.5rem;
+            display: none;
+            border: 1px solid var(--medium-gray);
+        }
+
+        .property-panel.active {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .property-row {
+            margin-bottom: 0.75rem;
+        }
+
+        .property-label {
+            display: block;
+            font-size: 0.8125rem;
+            margin-bottom: 0.375rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .property-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .property-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+        }
+
+        select.property-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23636e72' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 12px;
+        }
+
+        .editor-area {
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            background-color: var(--light-gray);
+            overflow: hidden;
+        }
+
+        .canvas-container {
+            flex: 1;
+            background-color: var(--white);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #pdf-canvas {
+            background-color: var(--white);
+            box-shadow: 0 0 0 1px var(--medium-gray);
+            margin: 1rem;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--border-radius-sm);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border-color: var(--dark-gray);
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light-gray);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border-color: #00b5ad;
+        }
+
+        .btn-secondary:hover {
+            background-color: #00b5ad;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        .status-bar {
+            padding: 0.5rem 1.5rem;
+            background-color: var(--white);
+            border-top: 1px solid var(--medium-gray);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zoom-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: 0.25rem;
+            border-radius: var(--border-radius-sm);
+        }
+
+        .zoom-btn:hover {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+        }
+
+        .document-info {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .document-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--text-color);
+            color: var(--white);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 100;
+            margin-bottom: 5px;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--medium-gray);
+            background-color: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .page-btn:hover {
+            background-color: var(--light-gray);
+            border-color: var(--dark-gray);
+        }
+
+        .page-btn.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-dark);
+        }
+
+        .page-input {
+            width: 40px;
+            text-align: center;
+            padding: 0.25rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--text-color);
+            color: var(--white);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-success {
+            background-color: #00b894;
+        }
+
+        .toast-error {
+            background-color: #d63031;
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--medium-gray);
+                padding: 1rem;
+            }
+
+            .tool-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .editor-area {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 0.75rem 1rem;
+            }
+
+            .tool-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .user-actions .btn span {
+                display: none;
+            }
+
+            .user-actions .btn i {
+                margin-right: 0;
+            }
+
+            .action-bar {
+                flex-wrap: wrap;
+            }
+
+            .document-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-file-pdf logo-icon"></i>
+                <span class="logo-text">VioletPDF</span>
+            </div>
+            <div class="user-actions">
+                <button class="btn btn-outline tooltip" data-tooltip="Import PDF">
+                    <i class="fas fa-cloud-upload-alt"></i> <span>Import</span>
+                </button>
+                <button class="btn btn-primary" id="download-pdf">
+                    <i class="fas fa-file-export"></i> <span>Export PDF</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <aside class="sidebar">
+                <div class="tool-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-sliders-h"></i> Tools
+                    </h3>
+                    <div class="tool-grid">
+                        <button class="tool-btn active" id="select-btn" title="Select tool (V)">
+                            <i class="fas fa-mouse-pointer tool-icon"></i>
+                            <span class="tool-label">Select</span>
+                        </button>
+                        <button class="tool-btn" id="text-btn" title="Text tool (T)">
+                            <i class="fas fa-font tool-icon"></i>
+                            <span class="tool-label">Text</span>
+                        </button>
+                        <button class="tool-btn" id="rect-btn" title="Rectangle tool (R)">
+                            <i class="fas fa-square tool-icon"></i>
+                            <span class="tool-label">Rectangle</span>
+                        </button>
+                        <button class="tool-btn" id="circle-btn" title="Circle tool (C)">
+                            <i class="fas fa-circle tool-icon"></i>
+                            <span class="tool-label">Circle</span>
+                        </button>
+                        <button class="tool-btn" id="line-btn" title="Line tool (L)">
+                            <i class="fas fa-minus tool-icon"></i>
+                            <span class="tool-label">Line</span>
+                        </button>
+                        <button class="tool-btn" id="image-btn" title="Image tool (I)">
+                            <i class="fas fa-image tool-icon"></i>
+                            <span class="tool-label">Image</span>
+                        </button>
+                        <button class="tool-btn" id="delete-btn" title="Delete selected (Del)">
+                            <i class="fas fa-trash tool-icon"></i>
+                            <span class="tool-label">Delete</span>
+                        </button>
+                        <button class="tool-btn" id="undo-btn" title="Undo (Ctrl+Z)">
+                            <i class="fas fa-undo tool-icon"></i>
+                            <span class="tool-label">Undo</span>
+                        </button>
+                        <button class="tool-btn" id="redo-btn" title="Redo (Ctrl+Y)">
+                            <i class="fas fa-redo tool-icon"></i>
+                            <span class="tool-label">Redo</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-paint-brush"></i> Appearance
+                    </h3>
+                    <div class="color-picker-container">
+                        <span class="color-label">Fill Color:</span>
+                        <input type="color" id="color-picker" value="#6c5ce7" title="Select fill color">
+                    </div>
+
+                    <div class="color-picker-container">
+                        <span class="color-label">Stroke Color:</span>
+                        <input type="color" id="stroke-color-picker" value="#6c5ce7" title="Select stroke color">
+                    </div>
+
+                    <div class="property-row">
+                        <label for="stroke-width" class="property-label">Stroke Width</label>
+                        <input type="range" id="stroke-width" class="property-input" min="1" max="10" value="2">
+                    </div>
+
+                    <div class="property-panel" id="text-properties">
+                        <div class="property-row">
+                            <label for="text-content" class="property-label">Text Content</label>
+                            <textarea id="text-content" class="property-input" rows="2" placeholder="Enter text here"></textarea>
+                        </div>
+                        <div class="property-row">
+                            <label for="font-family" class="property-label">Font Family</label>
+                            <select id="font-family" class="property-input">
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Verdana">Verdana</option>
+                                <option value="Roboto">Roboto</option>
+                                <option value="Inter">Inter</option>
+                            </select>
+                        </div>
+                        <div class="property-row">
+                            <label for="font-size" class="property-label">Font Size (px)</label>
+                            <input type="number" id="font-size" class="property-input" value="16" min="8" max="72">
+                        </div>
+                        <div class="property-row">
+                            <label class="property-label">Text Style</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button id="bold-btn" class="btn btn-sm btn-outline" title="Bold (Ctrl+B)">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button id="italic-btn" class="btn btn-sm btn-outline" title="Italic (Ctrl+I)">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button id="underline-btn" class="btn btn-sm btn-outline" title="Underline (Ctrl+U)">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="property-row">
+                            <label for="text-align" class="property-label">Text Alignment</label>
+                            <select id="text-align" class="property-input">
+                                <option value="left">Left</option>
+                                <option value="center">Center</option>
+                                <option value="right">Right</option>
+                                <option value="justify">Justify</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="apply-text" style="width: 100%; margin-top: 0.5rem;">
+                            Apply Changes
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tool-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-layer-group"></i> Layers
+                    </h3>
+                    <div id="layers-container" style="max-height: 200px; overflow-y: auto;">
+                        <!-- Layers will be added here dynamically -->
+                        <div class="empty-state" style="text-align: center; padding: 1rem; color: var(--text-light); font-size: 0.875rem;">
+                            No objects on canvas
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="editor-area">
+                <div class="canvas-container">
+                    <canvas id="pdf-canvas" width="800" height="600"></canvas>
+                </div>
+                <div class="action-bar">
+                    <div class="page-controls">
+                        <button class="page-btn" id="prev-page">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <input type="text" class="page-input" value="1" readonly>
+                        <span style="font-size: 0.875rem;">of 1</span>
+                        <button class="page-btn" id="next-page">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline" id="clear-canvas">
+                            <i class="fas fa-broom"></i> Clear Canvas
+                        </button>
+                        <button class="btn btn-secondary" id="save-project">
+                            <i class="fas fa-save"></i> Save Project
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="status-bar">
+            <div class="document-info">
+                <div class="document-info-item">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Untitled.pdf</span>
+                </div>
+                <div class="document-info-item">
+                    <i class="fas fa-ruler-combined"></i>
+                    <span>800 × 600 px</span>
+                </div>
+            </div>
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoom-out" title="Zoom Out">-</button>
+                <span>100%</span>
+                <button class="zoom-btn" id="zoom-in" title="Zoom In">+</button>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast-message"></div>
+
+    <script>
+        // Initialize Fabric.js canvas
+        const canvas = new fabric.Canvas('pdf-canvas', {
+            backgroundColor: '#ffffff',
+            preserveObjectStacking: true,
+            selectionColor: 'rgba(108, 92, 231, 0.3)',
+            selectionBorderColor: '#6c5ce7',
+            selectionLineWidth: 2,
+            controlsAboveOverlay: true
+        });
+
+        // Set default colors and properties
+        let currentColor = '#6c5ce7';
+        let currentStrokeColor = '#6c5ce7';
+        let currentStrokeWidth = 2;
+        let currentTool = 'select';
+        let zoomLevel = 1;
+        let history = [];
+        let historyIndex = -1;
+        let isDrawing = false;
+        let toastTimeout;
+
+        // DOM elements
+        const textBtn = document.getElementById('text-btn');
+        const rectBtn = document.getElementById('rect-btn');
+        const circleBtn = document.getElementById('circle-btn');
+        const lineBtn = document.getElementById('line-btn');
+        const imageBtn = document.getElementById('image-btn');
+        const selectBtn = document.getElementById('select-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const undoBtn = document.getElementById('undo-btn');
+        const redoBtn = document.getElementById('redo-btn');
+        const colorPicker = document.getElementById('color-picker');
+        const strokeColorPicker = document.getElementById('stroke-color-picker');
+        const strokeWidth = document.getElementById('stroke-width');
+        const downloadBtn = document.getElementById('download-pdf');
+        const clearCanvasBtn = document.getElementById('clear-canvas');
+        const saveProjectBtn = document.getElementById('save-project');
+        const textPropertiesPanel = document.getElementById('text-properties');
+        const textContent = document.getElementById('text-content');
+        const fontSize = document.getElementById('font-size');
+        const fontFamily = document.getElementById('font-family');
+        const textAlign = document.getElementById('text-align');
+        const boldBtn = document.getElementById('bold-btn');
+        const italicBtn = document.getElementById('italic-btn');
+        const underlineBtn = document.getElementById('underline-btn');
+        const applyTextBtn = document.getElementById('apply-text');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const toastMessage = document.getElementById('toast-message');
+        const layersContainer = document.getElementById('layers-container');
+
+        // Initialize UI
+        selectBtn.classList.add('active');
+        canvas.defaultCursor = 'default';
+        updateHistoryButtons();
+
+        // Save initial canvas state
+        saveCanvasState();
+
+        // Event listeners for tool selection
+        const toolButtons = [textBtn, rectBtn, circleBtn, lineBtn, imageBtn, selectBtn];
+        toolButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                toolButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentTool = this.id.replace('-btn', '');
+                
+                canvas.selection = currentTool === 'select';
+                canvas.defaultCursor = currentTool === 'select' ? 'default' : 'crosshair';
+                
+                if (currentTool === 'text') {
+                    textPropertiesPanel.classList.add('active');
+                } else {
+                    textPropertiesPanel.classList.remove('active');
+                }
+            });
+        });
+
+        // Delete button
+        deleteBtn.addEventListener('click', () => {
+            const activeObjects = canvas.getActiveObjects();
+            if (activeObjects && activeObjects.length > 0) {
+                canvas.discardActiveObject();
+                activeObjects.forEach(obj => canvas.remove(obj));
+                canvas.renderAll();
+                saveCanvasState();
+                updateLayersList();
+                showToast('Selected objects deleted', 'success');
+            }
+        });
+
+        // Color pickers
+        colorPicker.addEventListener('input', (e) => {
+            currentColor = e.target.value;
+            updateActiveObjectColor();
+        });
+
+        strokeColorPicker.addEventListener('input', (e) => {
+            currentStrokeColor = e.target.value;
+            updateActiveObjectStroke();
+        });
+
+        // Stroke width
+        strokeWidth.addEventListener('input', (e) => {
+            currentStrokeWidth = parseInt(e.target.value);
+            updateActiveObjectStroke();
+        });
+
+        // Canvas interactions
+        canvas.on('mouse:down', (options) => {
+            if (!options.target && currentTool !== 'select') {
+                const pointer = canvas.getPointer(options.e);
+                isDrawing = true;
+                
+                switch (currentTool) {
+                    case 'text':
+                        addText(pointer.x, pointer.y);
+                        isDrawing = false;
+                        break;
+                    case 'rect':
+                        startDrawingRectangle(pointer.x, pointer.y);
+                        break;
+                    case 'circle':
+                        startDrawingCircle(pointer.x, pointer.y);
+                        break;
+                    case 'line':
+                        startDrawingLine(pointer.x, pointer.y);
+                        break;
+                    case 'image':
+                        // Image upload would be handled separately
+                        break;
+                }
+            }
+        });
+
+        canvas.on('mouse:move', (options) => {
+            if (!isDrawing) return;
+            
+            const pointer = canvas.getPointer(options.e);
+            
+            switch (currentTool) {
+                case 'rect':
+                    updateDrawingRectangle(pointer.x, pointer.y);
+                    break;
+                case 'circle':
+                    updateDrawingCircle(pointer.x, pointer.y);
+                    break;
+                case 'line':
+                    updateDrawingLine(pointer.x, pointer.y);
+                    break;
+            }
+        });
+
+        canvas.on('mouse:up', () => {
+            if (isDrawing) {
+                isDrawing = false;
+                saveCanvasState();
+                updateLayersList();
+            }
+        });
+
+        // Object selection
+        canvas.on('selection:created', (options) => {
+            if (options.target.type === 'i-text' || options.target.type === 'text') {
+                textPropertiesPanel.classList.add('active');
+                textContent.value = options.target.text;
+                fontSize.value = options.target.fontSize;
+                fontFamily.value = options.target.fontFamily;
+                textAlign.value = options.target.textAlign;
+                
+                // Update style buttons
+                boldBtn.classList.toggle('active', options.target.fontWeight === 'bold');
+                italicBtn.classList.toggle('active', options.target.fontStyle === 'italic');
+                underlineBtn.classList.toggle('active', options.target.underline);
+            } else {
+                textPropertiesPanel.classList.remove('active');
+            }
+        });
+
+        canvas.on('selection:cleared', () => {
+            textPropertiesPanel.classList.remove('active');
+        });
+
+        canvas.on('object:modified', () => {
+            saveCanvasState();
+            updateLayersList();
+        });
+
+        canvas.on('object:added', () => {
+            updateLayersList();
+        });
+
+        canvas.on('object:removed', () => {
+            updateLayersList();
+        });
+
+        // Apply text properties
+        applyTextBtn.addEventListener('click', () => {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'text' || activeObject.type === 'i-text')) {
+                activeObject.set({
+                    text: textContent.value,
+                    fontSize: parseInt(fontSize.value),
+                    fontFamily: fontFamily.value,
+                    textAlign: textAlign.value
+                });
+                canvas.renderAll();
+                saveCanvasState();
+                showToast('Text properties updated', 'success');
+            }
+        });
+
+        // Text style buttons
+        boldBtn.addEventListener('click', () => {
+            toggleTextStyle('fontWeight', 'bold');
+        });
+
+        italicBtn.addEventListener('click', () => {
+            toggleTextStyle('fontStyle', 'italic');
+        });
+
+        underlineBtn.addEventListener('click', () => {
+            toggleTextStyle('underline', true, false);
+        });
+
+        // Undo/Redo
+        undoBtn.addEventListener('click', undo);
+        redoBtn.addEventListener('click', redo);
+
+        // Clear canvas
+        clearCanvasBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear the canvas? All your work will be lost.')) {
+                canvas.clear();
+                canvas.backgroundColor = '#ffffff';
+                canvas.renderAll();
+                saveCanvasState();
+                updateLayersList();
+                showToast('Canvas cleared', 'success');
+            }
+        });
+
+        // Save project
+        saveProjectBtn.addEventListener('click', () => {
+            const projectData = JSON.stringify(canvas.toJSON());
+            localStorage.setItem('violetPDFProject', projectData);
+            showToast('Project saved locally', 'success');
+        });
+
+        // Load project if exists
+        const savedProject = localStorage.getItem('violetPDFProject');
+        if (savedProject) {
+            if (confirm('A saved project was found. Would you like to load it?')) {
+                canvas.loadFromJSON(savedProject, () => {
+                    canvas.renderAll();
+                    updateLayersList();
+                    showToast('Project loaded', 'success');
+                });
+            }
+        }
+
+        // Export to PDF
+        downloadBtn.addEventListener('click', exportToPDF);
+
+        // Zoom controls
+        zoomInBtn.addEventListener('click', () => {
+            zoomLevel = Math.min(zoomLevel + 0.1, 2);
+            updateZoom();
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            zoomLevel = Math.max(zoomLevel - 0.1, 0.5);
+            updateZoom();
+        });
+
+        // Page controls (placeholder functionality)
+        prevPageBtn.addEventListener('click', () => {
+            showToast('Multi-page support coming soon', 'error');
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+            showToast('Multi-page support coming soon', 'error');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Prevent shortcuts when typing in inputs
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            // Tool shortcuts
+            if (e.key === 'v') {
+                selectBtn.click();
+            } else if (e.key === 't') {
+                textBtn.click();
+            } else if (e.key === 'r') {
+                rectBtn.click();
+            } else if (e.key === 'c') {
+                circleBtn.click();
+            } else if (e.key === 'l') {
+                lineBtn.click();
+            } else if (e.key === 'i') {
+                imageBtn.click();
+            } else if (e.key === 'Delete') {
+                deleteBtn.click();
+            }
+            
+            // Undo/Redo
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z') {
+                    undo();
+                    e.preventDefault();
+                } else if (e.key === 'y') {
+                    redo();
+                    e.preventDefault();
+                } else if (e.key === 'b') {
+                    toggleTextStyle('fontWeight', 'bold');
+                    e.preventDefault();
+                } else if (e.key === 'i') {
+                    toggleTextStyle('fontStyle', 'italic');
+                    e.preventDefault();
+                } else if (e.key === 'u') {
+                    toggleTextStyle('underline', true, false);
+                    e.preventDefault();
+                } else if (e.key === 's') {
+                    saveProjectBtn.click();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // Helper functions
+        function updateActiveObjectColor() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                if (activeObject.type === 'i-text' || activeObject.type === 'text') {
+                    activeObject.set('fill', currentColor);
+                } else {
+                    activeObject.set('fill', currentColor);
+                }
+                canvas.renderAll();
+            }
+        }
+
+        function updateActiveObjectStroke() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && activeObject.type !== 'i-text' && activeObject.type !== 'text') {
+                activeObject.set({
+                    stroke: currentStrokeColor,
+                    strokeWidth: currentStrokeWidth
+                });
+                canvas.renderAll();
+            }
+        }
+
+        function addText(x, y) {
+            const text = new fabric.IText('Double click to edit', {
+                left: x,
+                top: y,
+                fontFamily: 'Arial',
+                fontSize: 16,
+                fill: currentColor,
+                padding: 8,
+                editable: true,
+                textAlign: 'left'
+            });
+            canvas.add(text);
+            canvas.setActiveObject(text);
+            text.enterEditing();
+            text.selectAll();
+            saveCanvasState();
+        }
+
+        function startDrawingRectangle(x, y) {
+            const rect = new fabric.Rect({
+                left: x,
+                top: y,
+                width: 1,
+                height: 1,
+                fill: currentColor,
+                stroke: currentStrokeColor,
+                strokeWidth: currentStrokeWidth,
+                rx: 4,
+                ry: 4,
+                selectable: false
+            });
+            canvas.add(rect);
+            canvas.setActiveObject(rect);
+            canvas.renderAll();
+        }
+
+        function updateDrawingRectangle(x, y) {
+            const rect = canvas.getActiveObject();
+            if (rect) {
+                const startX = rect.left;
+                const startY = rect.top;
+                
+                rect.set({
+                    width: Math.abs(x - startX),
+                    height: Math.abs(y - startY),
+                    left: x < startX ? x : startX,
+                    top: y < startY ? y : startY
+                });
+                
+                canvas.renderAll();
+            }
+        }
+
+        function startDrawingCircle(x, y) {
+            const circle = new fabric.Circle({
+                left: x,
+                top: y,
+                radius: 1,
+                fill: currentColor,
+                stroke: currentStrokeColor,
+                strokeWidth: currentStrokeWidth,
+                selectable: false
+            });
+            canvas.add(circle);
+            canvas.setActiveObject(circle);
+            canvas.renderAll();
+        }
+
+        function updateDrawingCircle(x, y) {
+            const circle = canvas.getActiveObject();
+            if (circle) {
+                const startX = circle.left;
+                const startY = circle.top;
+                const radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+                
+                circle.set({
+                    radius: radius
+                });
+                
+                canvas.renderAll();
+            }
+        }
+
+        function startDrawingLine(x, y) {
+            const line = new fabric.Line([x, y, x, y], {
+                stroke: currentStrokeColor,
+                strokeWidth: currentStrokeWidth,
+                selectable: false
+            });
+            canvas.add(line);
+            canvas.setActiveObject(line);
+            canvas.renderAll();
+        }
+
+        function updateDrawingLine(x, y) {
+            const line = canvas.getActiveObject();
+            if (line) {
+                const startX = line.x1;
+                const startY = line.y1;
+                
+                line.set({
+                    x2: x,
+                    y2: y
+                });
+                
+                canvas.renderAll();
+            }
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm'
+            });
+            
+            // Add watermark
+            pdf.setFontSize(40);
+            pdf.setTextColor(220, 220, 220);
+            pdf.text('VioletPDF', 105, 150, { angle: 45, align: 'center' });
+            pdf.setTextColor(0, 0, 0);
+            
+            // Convert canvas to image
+            const canvasImg = canvas.toDataURL('image/png', 1.0);
+            
+            // Calculate PDF dimensions to maintain aspect ratio
+            const imgWidth = 190; // A4 width minus margins
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            // Add image to PDF with margins
+            pdf.addImage(canvasImg, 'PNG', 10, 10, imgWidth, imgHeight);
+            
+            // Add footer
+            pdf.setFontSize(10);
+            pdf.text(`Generated by VioletPDF on ${new Date().toLocaleDateString()}`, 105, 287, { align: 'center' });
+            
+            // Download the PDF
+            pdf.save(`document-${new Date().getTime()}.pdf`);
+            showToast('PDF exported successfully', 'success');
+        }
+
+        function saveCanvasState() {
+            // Only keep the last 20 states in history
+            if (history.length > 20) {
+                history.shift();
+            }
+            
+            // If we're not at the end of history, remove future states
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            
+            history.push(JSON.stringify(canvas.toJSON()));
+            historyIndex = history.length - 1;
+            updateHistoryButtons();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                canvas.loadFromJSON(history[historyIndex], () => {
+                    canvas.renderAll();
+                    updateHistoryButtons();
+                });
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                canvas.loadFromJSON(history[historyIndex], () => {
+                    canvas.renderAll();
+                    updateHistoryButtons();
+                });
+            }
+        }
+
+        function updateHistoryButtons() {
+            undoBtn.disabled = historyIndex <= 0;
+            redoBtn.disabled = historyIndex >= history.length - 1;
+        }
+
+        function toggleTextStyle(property, value1, value2 = '') {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'text' || activeObject.type === 'i-text')) {
+                const currentValue = activeObject[property];
+                activeObject.set(property, currentValue === value1 ? value2 : value1);
+                canvas.renderAll();
+                
+                // Update button state
+                if (property === 'fontWeight') {
+                    boldBtn.classList.toggle('active', activeObject.fontWeight === 'bold');
+                } else if (property === 'fontStyle') {
+                    italicBtn.classList.toggle('active', activeObject.fontStyle === 'italic');
+                } else if (property === 'underline') {
+                    underlineBtn.classList.toggle('active', activeObject.underline);
+                }
+                
+                saveCanvasState();
+            }
+        }
+
+        function updateZoom() {
+            const zoomDisplay = document.querySelector('.zoom-controls span');
+            zoomDisplay.textContent = `${Math.round(zoomLevel * 100)}%`;
+            
+            // In a real app, you would implement actual zoom functionality
+            showToast('Zoom functionality coming soon', 'error');
+        }
+
+        function updateLayersList() {
+            layersContainer.innerHTML = '';
+            
+            if (canvas.getObjects().length === 0) {
+                layersContainer.innerHTML = '<div class="empty-state" style="text-align: center; padding: 1rem; color: var(--text-light); font-size: 0.875rem;">No objects on canvas</div>';
+                return;
+            }
+            
+            // Add objects in reverse order (top to bottom in canvas = top to bottom in list)
+            const objects = canvas.getObjects().slice().reverse();
+            
+            objects.forEach((obj, index) => {
+                const layerItem = document.createElement('div');
+                layerItem.className = 'property-row';
+                layerItem.style.display = 'flex';
+                layerItem.style.alignItems = 'center';
+                layerItem.style.padding = '0.5rem';
+                layerItem.style.borderBottom = '1px solid var(--medium-gray)';
+                layerItem.style.cursor = 'pointer';
+                
+                // Set different icons for different object types
+                let iconClass = 'fa-shapes';
+                if (obj.type === 'i-text' || obj.type === 'text') {
+                    iconClass = 'fa-font';
+                } else if (obj.type === 'rect') {
+                    iconClass = 'fa-square';
+                } else if (obj.type === 'circle') {
+                    iconClass = 'fa-circle';
+                } else if (obj.type === 'line') {
+                    iconClass = 'fa-minus';
+                } else if (obj.type === 'image') {
+                    iconClass = 'fa-image';
+                }
+                
+                layerItem.innerHTML = `
+                    <i class="fas ${iconClass}" style="margin-right: 0.75rem; color: ${obj.fill || '#6c5ce7'};"></i>
+                    <span style="flex: 1; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${obj.type.charAt(0).toUpperCase() + obj.type.slice(1)} ${objects.length - index}
+                    </span>
+                    <i class="fas fa-eye" style="margin-left: 0.5rem; color: var(--text-light);"></i>
+                `;
+                
+                // Click to select the object
+                layerItem.addEventListener('click', () => {
+                    canvas.setActiveObject(obj);
+                    canvas.renderAll();
+                });
+                
+                // Toggle visibility
+                const eyeIcon = layerItem.querySelector('.fa-eye');
+                eyeIcon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    obj.visible = !obj.visible;
+                    canvas.renderAll();
+                    eyeIcon.style.color = obj.visible ? 'var(--text-light)' : 'var(--accent-color)';
+                });
+                
+                layersContainer.appendChild(layerItem);
+            });
+        }
+
+        function showToast(message, type = '') {
+            clearTimeout(toastTimeout);
+            toastMessage.textContent = message;
+            toastMessage.className = 'toast';
+            
+            if (type) {
+                toastMessage.classList.add(`toast-${type}`);
+            }
+            
+            toastMessage.classList.add('show');
+            
+            toastTimeout = setTimeout(() => {
+                toastMessage.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize with some sample content
+        window.addEventListener('load', () => {
+            const welcomeText = new fabric.IText('Welcome to VioletPDF Editor', {
+                left: 100,
+                top: 50,
+                fontFamily: 'Helvetica',
+                fontSize: 24,
+                fill: '#6c5ce7',
+                fontWeight: 'bold'
+            });
+            canvas.add(welcomeText);
+            
+            const subtitle = new fabric.IText('Create professional PDF documents with our easy-to-use editor', {
+                left: 100,
+                top: 90,
+                fontFamily: 'Helvetica',
+                fontSize: 16,
+                fill: '#2d3436'
+            });
+            canvas.add(subtitle);
+            
+            updateLayersList();
+            showToast('Document loaded', 'success');
+        });
+    </script>
+</body>
+</html>

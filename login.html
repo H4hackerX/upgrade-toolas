@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Tools Authentication</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #f44336;
+            --dark-red: #d32f2f;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #757575;
+            --black: #212121;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--black);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main {
+            width: 100%;
+            padding: 20px;
+        }
+
+        .login_box {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .content {
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-red);
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--dark-gray);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-red);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--dark-red);
+        }
+
+        a {
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        p {
+            margin-top: 15px;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+
+        .error {
+            color: var(--primary-red);
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success {
+            color: #4caf50;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        #forg {
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Password strength meter */
+        .password-strength {
+            margin-top: 5px;
+            height: 4px;
+            background-color: var(--medium-gray);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .weak {
+            width: 33%;
+            background-color: #ff5722;
+        }
+
+        .medium {
+            width: 66%;
+            background-color: #ffc107;
+        }
+
+        .strong {
+            width: 100%;
+            background-color: #4caf50;
+        }
+
+        /* Social login styles */
+        .social-login {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .google {
+            background-color: #DB4437;
+        }
+
+        .facebook {
+            background-color: #4267B2;
+        }
+
+        .github {
+            background-color: #333;
+        }
+
+        .divider {
+            margin: 20px 0;
+            position: relative;
+            text-align: center;
+            color: var(--dark-gray);
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: var(--medium-gray);
+            z-index: -1;
+        }
+
+        .divider span {
+            background-color: var(--white);
+            padding: 0 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Page -->
+    <div class="main" id="loginPage">
+        <div class="login_box">
+            <div class="content">
+                <h1>Login</h1>
+                <form id="loginForm">
+                    <input type="text" id="username" placeholder="Username" required>
+                    <div class="input-group">
+                        <input type="password" id="password" placeholder="Password" required>
+                        <i class="fas fa-eye password-toggle" id="toggleLoginPassword"></i>
+                    </div>
+                    <a id="forg" href="#" onclick="showPage('forgotPage')">Forgot password?</a>
+                    <button type="submit">Login</button>
+                </form>
+
+                <div class="divider"><span>or continue with</span></div>
+
+                <div class="social-login">
+                    <div class="social-btn google" onclick="socialLogin('google')">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <div class="social-btn facebook" onclick="socialLogin('facebook')">
+                        <i class="fab fa-facebook-f"></i>
+                    </div>
+                    <div class="social-btn github" onclick="socialLogin('github')">
+                        <i class="fab fa-github"></i>
+                    </div>
+                </div>
+
+                <p>Don't have an account? <a href="#" onclick="showPage('signupPage')">Sign up</a></p>
+                <div id="loginError" class="error">Incorrect username or password. Please try again.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Page -->
+    <div class="main hidden" id="forgotPage">
+        <div class="login_box">
+            <div class="content">
+                <h1>Forgot Password</h1>
+                <form id="forgotForm">
+                    <input type="email" id="forgotEmail" placeholder="Enter your email" required>
+                    <button type="submit">Reset Password</button>
+                </form>
+
+                <div class="divider"><span>or continue with</span></div>
+
+                <div class="social-login">
+                    <div class="social-btn google" onclick="socialLogin('google')">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <div class="social-btn facebook" onclick="socialLogin('facebook')">
+                        <i class="fab fa-facebook-f"></i>
+                    </div>
+                    <div class="social-btn github" onclick="socialLogin('github')">
+                        <i class="fab fa-github"></i>
+                    </div>
+                </div>
+
+                <p><a href="#" onclick="showPage('loginPage')">Back to Login</a></p>
+                <div id="forgotSuccess" class="success">Password reset link sent to your email.</div>
+                <div id="forgotError" class="error">Please enter a valid email address.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Page -->
+    <div class="main hidden" id="resetPage">
+        <div class="login_box">
+            <div class="content">
+                <h1>Reset Password</h1>
+                <form id="resetForm">
+                    <div class="input-group">
+                        <input type="password" id="newPassword" placeholder="New password" required>
+                        <i class="fas fa-eye password-toggle" id="toggleNewPassword"></i>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+                        <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+                    </div>
+                    <button type="submit">Change Password</button>
+                </form>
+
+                <div class="divider"><span>or continue with</span></div>
+
+                <div class="social-login">
+                    <div class="social-btn google" onclick="socialLogin('google')">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <div class="social-btn facebook" onclick="socialLogin('facebook')">
+                        <i class="fab fa-facebook-f"></i>
+                    </div>
+                    <div class="social-btn github" onclick="socialLogin('github')">
+                        <i class="fab fa-github"></i>
+                    </div>
+                </div>
+
+                <div id="resetSuccess" class="success">Password successfully changed!</div>
+                <div id="resetError" class="error">Passwords do not match. Please try again.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Page -->
+    <div class="main hidden" id="signupPage">
+        <div class="login_box">
+            <div class="content">
+                <h1>Create Account</h1>
+                <form id="signupForm">
+                    <input type="email" id="signupEmail" placeholder="Email" required>
+                    <input type="text" id="signupUsername" placeholder="Username" required>
+                    <div class="input-group">
+                        <input type="password" id="signupPassword" placeholder="Password" required>
+                        <i class="fas fa-eye password-toggle" id="toggleSignupPassword"></i>
+                    </div>
+                    <div class="password-strength">
+                        <div id="strengthMeter" class="strength-meter"></div>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
+                        <i class="fas fa-eye password-toggle" id="toggleSignupConfirmPassword"></i>
+                    </div>
+                    <button type="submit">Create Account</button>
+                </form>
+
+                <div class="divider"><span>or continue with</span></div>
+
+                <div class="social-login">
+                    <div class="social-btn google" onclick="socialLogin('google')">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <div class="social-btn facebook" onclick="socialLogin('facebook')">
+                        <i class="fab fa-facebook-f"></i>
+                    </div>
+                    <div class="social-btn github" onclick="socialLogin('github')">
+                        <i class="fab fa-github"></i>
+                    </div>
+                </div>
+
+                <p>Already have an account? <a href="#" onclick="showPage('loginPage')">Login here</a></p>
+                <div id="signupSuccess" class="success">Account successfully created!</div>
+                <div id="signupError" class="error">Please fill out the form correctly.</div>
+                <div id="passwordError" class="error">Passwords do not match.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.main').forEach(page => {
+                page.classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        // Initialize - hide all error messages
+        document.querySelectorAll('.error, .success').forEach(el => {
+            el.style.display = 'none';
+        });
+
+        // Toggle password visibility function
+        function setupPasswordToggle(toggleId, inputId) {
+            const toggle = document.getElementById(toggleId);
+            const input = document.getElementById(inputId);
+            
+            if (toggle && input) {
+                toggle.addEventListener('click', function() {
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        toggle.classList.replace('fa-eye', 'fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        toggle.classList.replace('fa-eye-slash', 'fa-eye');
+                    }
+                });
+            }
+        }
+
+        // Set up all password toggles
+        setupPasswordToggle('toggleLoginPassword', 'password');
+        setupPasswordToggle('toggleNewPassword', 'newPassword');
+        setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+        setupPasswordToggle('toggleSignupPassword', 'signupPassword');
+        setupPasswordToggle('toggleSignupConfirmPassword', 'signupConfirmPassword');
+
+        // Social login function
+        function socialLogin(provider) {
+            // In a real app, this would redirect to the provider's authentication
+            alert(`Redirecting to ${provider} authentication...`);
+            // Example: window.location.href = `/auth/${provider}`;
+
+            // For demo purposes, we'll simulate a successful login
+            const dummyUser = {
+                email: `user@${provider}.com`,
+                username: `${provider}_user`,
+                provider: provider,
+                joined: new Date().toISOString()
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(dummyUser));
+            // Redirect to dashboard in a real app
+            alert(`Logged in with ${provider}! Redirecting to dashboard...`);
+            // window.location.href = 'dashboard.html';
+        }
+
+        // Check if email exists in localStorage
+        function emailExists(email) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            return users.some(user => user.email === email);
+        }
+
+        // Check if username exists in localStorage
+        function usernameExists(username) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            return users.some(user => user.username === username);
+        }
+
+        // Password strength checker
+        document.getElementById('signupPassword')?.addEventListener('input', function () {
+            const password = this.value;
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            const meter = document.getElementById('strengthMeter');
+            meter.className = 'strength-meter';
+
+            if (password.length === 0) {
+                meter.style.width = '0';
+            } else if (strength <= 2) {
+                meter.classList.add('weak');
+            } else if (strength <= 4) {
+                meter.classList.add('medium');
+            } else {
+                meter.classList.add('strong');
+            }
+        });
+
+        // Login form - corrected version
+    document.getElementById('loginForm')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+        hideMessages('login');
+
+        const loginInput = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        
+        // Check both username and email (case insensitive for email)
+        const user = users.find(u => 
+            (u.username.toLowerCase() === loginInput.toLowerCase() || 
+            u.email.toLowerCase() === loginInput.toLowerCase()) && 
+            u.password === password
+        );
+
+        if (user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            // Uncomment this line and ensure dashboard.html exists
+            window.location.href = 'main.html';
+        } else {
+            showMessage('loginError', 'Invalid username/email or password');
+        }
+    });
+        // Forgot password form
+        document.getElementById('forgotForm')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            hideMessages('forgot');
+
+            const email = document.getElementById('forgotEmail').value.trim();
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailPattern.test(email)) {
+                showMessage('forgotError', 'Please enter a valid email address');
+                return;
+            }
+
+            if (!emailExists(email)) {
+                showMessage('forgotError', 'No account found with this email');
+                return;
+            }
+
+            // In a real app, you would send a reset link to the email
+            localStorage.setItem('resetEmail', email);
+            showMessage('forgotSuccess', 'Password reset link sent to your email');
+            document.getElementById('forgotForm').reset();
+            setTimeout(() => showPage('resetPage'), 2000);
+        });
+
+        // Reset password form
+        document.getElementById('resetForm')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            hideMessages('reset');
+
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const email = localStorage.getItem('resetEmail');
+
+            if (newPassword !== confirmPassword) {
+                showMessage('resetError', 'Passwords do not match');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                showMessage('resetError', 'Password must be at least 8 characters');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.email === email);
+
+            if (userIndex !== -1) {
+                users[userIndex].password = newPassword;
+                localStorage.setItem('users', JSON.stringify(users));
+                showMessage('resetSuccess', 'Password successfully changed!');
+                localStorage.removeItem('resetEmail');
+                setTimeout(() => showPage('loginPage'), 2000);
+            } else {
+                showMessage('resetError', 'Error updating password');
+            }
+        });
+
+        // Signup form
+        document.getElementById('signupForm')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            hideMessages('signup');
+
+            const email = document.getElementById('signupEmail').value.trim();
+            const username = document.getElementById('signupUsername').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailPattern.test(email)) {
+                showMessage('signupError', 'Please enter a valid email address');
+                return;
+            }
+
+            if (emailExists(email)) {
+                showMessage('signupError', 'Email already registered');
+                return;
+            }
+
+            if (usernameExists(username)) {
+                showMessage('signupError', 'Username already taken');
+                return;
+            }
+
+            if (password.length < 8) {
+                showMessage('passwordError', 'Password must be at least 8 characters');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('passwordError', 'Passwords do not match');
+                return;
+            }
+
+            const newUser = {
+                email,
+                username,
+                password,
+                joined: new Date().toISOString()
+            };
+
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            showMessage('signupSuccess', 'Account created successfully!');
+            document.getElementById('signupForm').reset();
+            setTimeout(() => showPage('loginPage'), 2000);
+        });
+
+        // Helper functions
+        function hideMessages(page) {
+            document.querySelectorAll(`#${page}Page .error, #${page}Page .success`).forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        function showMessage(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        // Check if user is already logged in
+        if (localStorage.getItem('currentUser')) {
+            alert('You are already logged in. Redirecting to dashboard...');
+            // window.location.href = 'dashboard.html';
+        }
+
+        // Check URL hash for page routing
+        if (window.location.hash === '#signup') {
+            showPage('signupPage');
+        } else if (window.location.hash === '#forgot') {
+            showPage('forgotPage');
+        } else if (window.location.hash === '#reset') {
+            showPage('resetPage');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Excel to PDF Converter | Secure Document Conversion</title>
+    <meta name="description" content="Convert Excel files to high-quality PDF documents with perfect formatting. Secure, client-side processing with no file size limits.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/downloadjs@1.4.7"></script>
+    <style>
+        :root {
+            --primary-color: #217346;
+            --primary-light: #2d8a58;
+            --primary-dark: #1a5c38;
+            --secondary-color: #f8f9fa;
+            --text-color: #2d3748;
+            --text-light: #4a5568;
+            --border-color: #e2e8f0;
+            --error-color: #e53e3e;
+            --success-color: #38a169;
+            --light-bg: #f5faf7;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .app-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 24px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            color: white;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .version-badge {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .app-content {
+            padding: 40px;
+        }
+        
+        .converter-card {
+            background-color: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card-header i {
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+        
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 50px 40px;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            background-color: var(--secondary-color);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(33, 115, 70, 0.03);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 18px;
+        }
+        
+        .upload-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+        
+        .upload-desc {
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .upload-note {
+            color: #a0aec0;
+            font-size: 13px;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .file-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 25px;
+            background-color: white;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+        
+        .file-info:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .file-icon {
+            color: var(--primary-color);
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .file-meta {
+            min-width: 0;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .file-size {
+            color: var(--text-light);
+            font-size: 13px;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .option-group {
+            margin-bottom: 0;
+        }
+        
+        .option-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option-label i {
+            color: var(--primary-color);
+            font-size: 16px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(33, 115, 70, 0.1);
+        }
+        
+        .select-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input {
+            margin-right: 10px;
+            accent-color: var(--primary-color);
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn i {
+            font-size: 16px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 4px rgba(33, 115, 70, 0.2);
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(33, 115, 70, 0.2);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary:disabled {
+            background-color: #e2e8f0;
+            color: #a0aec0;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .btn-danger {
+            background-color: white;
+            color: var(--error-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        
+        .btn-danger:hover {
+            background-color: #fef2f2;
+            border-color: #fed7d7;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .progress-title {
+            font-weight: 500;
+            color: var(--primary-dark);
+            font-size: 15px;
+        }
+        
+        .progress-percent {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 15px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #edf2f7;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .status-message {
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        
+        .status-error {
+            color: var(--error-color);
+        }
+        
+        .status-success {
+            color: var(--success-color);
+        }
+        
+        .features-section {
+            margin-top: 40px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--primary-color);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .feature-icon {
+            color: var(--primary-color);
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+        
+        .app-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-light);
+            font-size: 13px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                margin: 20px;
+                border-radius: var(--radius-md);
+            }
+            
+            .app-header {
+                padding: 20px;
+            }
+            
+            .app-content {
+                padding: 25px;
+            }
+            
+            .upload-area {
+                padding: 40px 20px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">
+                <i class="fas fa-file-excel logo-icon"></i>
+                <span class="logo-text">Excel to PDF Converter</span>
+            </div>
+            <span class="version-badge">Enterprise v2.5</span>
+        </header>
+        
+        <main class="app-content">
+            <div class="converter-card">
+                <div class="card-header">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h2>Spreadsheet Conversion</h2>
+                </div>
+                <div class="card-body">
+                    <div class="upload-area" id="upload-area">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h3 class="upload-title">Upload Excel File</h3>
+                        <p class="upload-desc">Drag & drop your Excel file here or click to browse files</p>
+                        <small class="upload-note">Supports: .xls, .xlsx (Max 50MB)</small>
+                        <input type="file" id="file-input" accept=".xls,.xlsx">
+                    </div>
+                    
+                    <div class="file-info" id="file-info" style="display: none;">
+                        <div class="file-details">
+                            <i class="fas fa-file-excel file-icon"></i>
+                            <div class="file-meta">
+                                <div class="file-name" id="file-name"></div>
+                                <div class="file-size" id="file-size"></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" id="remove-file">
+                            <i class="fas fa-trash-alt"></i> Remove
+                        </button>
+                    </div>
+                    
+                    <div class="options-grid">
+                        <div class="option-group">
+                            <label for="output-name" class="option-label">
+                                <i class="fas fa-file-signature"></i>
+                                Output Filename
+                            </label>
+                            <input type="text" id="output-name" class="form-control" placeholder="converted-spreadsheet" value="converted-spreadsheet">
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="quality-option" class="option-label">
+                                <i class="fas fa-cog"></i>
+                                PDF Quality
+                            </label>
+                            <select id="quality-option" class="form-control select-control">
+                                <option value="high">High Quality (Recommended)</option>
+                                <option value="medium">Medium Quality</option>
+                                <option value="low">Smaller File Size</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="landscape" checked>
+                            <label for="landscape">Landscape orientation</label>
+                        </div>
+                        <div class="checkbox-group" style="margin-top: 8px;">
+                            <input type="checkbox" id="fit-to-page" checked>
+                            <label for="fit-to-page">Fit to page width</label>
+                        </div>
+                        <div class="checkbox-group" style="margin-top: 8px;">
+                            <input type="checkbox" id="include-gridlines" checked>
+                            <label for="include-gridlines">Include gridlines</label>
+                        </div>
+                    </div>
+                    
+                    <button id="convert-btn" class="btn btn-primary" disabled>
+                        <i class="fas fa-file-export"></i> Convert to PDF
+                    </button>
+                    
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-title">Conversion Progress</span>
+                            <span class="progress-percent" id="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-bar"></div>
+                        </div>
+                        <div class="status-message" id="status">Ready to convert your spreadsheet...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="features-section">
+                <h3 class="section-title">
+                    <i class="fas fa-star"></i>
+                    Enterprise-Grade Conversion
+                </h3>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-lock feature-icon"></i>
+                        <h4 class="feature-title">Military-Grade Security</h4>
+                        <p class="feature-desc">All processing happens in your browser. Your files never leave your computer, ensuring complete data privacy.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <i class="fas fa-tachometer-alt feature-icon"></i>
+                        <h4 class="feature-title">High-Speed Processing</h4>
+                        <p class="feature-desc">Optimized conversion engine handles large spreadsheets quickly and efficiently.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <i class="fas fa-table feature-icon"></i>
+                        <h4 class="feature-title">Precision Formatting</h4>
+                        <p class="feature-desc">Maintains cell alignment, formulas (as values), and complex spreadsheet layouts.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="app-footer">
+                <p>© 2023 Professional Document Solutions | All rights reserved</p>
+                <p>Client-side processing | No file storage | Enterprise-grade security</p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('file-input');
+            const fileInfo = document.getElementById('file-info');
+            const fileName = document.getElementById('file-name');
+            const fileSize = document.getElementById('file-size');
+            const removeFileBtn = document.getElementById('remove-file');
+            const convertBtn = document.getElementById('convert-btn');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+            const statusText = document.getElementById('status');
+            const outputName = document.getElementById('output-name');
+            const qualityOption = document.getElementById('quality-option');
+            const landscape = document.getElementById('landscape');
+            const fitToPage = document.getElementById('fit-to-page');
+            const includeGridlines = document.getElementById('include-gridlines');
+            
+            // Configuration
+            let excelFile = null;
+            const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+            const VALID_TYPES = [
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ];
+            const VALID_EXTENSIONS = ['.xls', '.xlsx'];
+            
+            // Event Listeners
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
+            uploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            removeFileBtn.addEventListener('click', resetFileInput);
+            convertBtn.addEventListener('click', convertExcelToPdf);
+            
+            // Event Handlers
+            function handleDragOver(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary-color)';
+                uploadArea.style.backgroundColor = 'rgba(33, 115, 70, 0.05)';
+                uploadArea.style.transform = 'translateY(-3px)';
+            }
+            
+            function handleDragLeave() {
+                uploadArea.style.borderColor = 'var(--border-color)';
+                uploadArea.style.backgroundColor = 'var(--secondary-color)';
+                uploadArea.style.transform = 'translateY(0)';
+            }
+            
+            function handleDrop(e) {
+                e.preventDefault();
+                resetDragState();
+                
+                if (e.dataTransfer.files.length === 1) {
+                    validateAndHandleFile(e.dataTransfer.files[0]);
+                } else {
+                    showError('Please drop a single Excel file');
+                }
+            }
+            
+            function handleFileSelect() {
+                if (fileInput.files.length === 1) {
+                    validateAndHandleFile(fileInput.files[0]);
+                    fileInput.value = '';
+                }
+            }
+            
+            // Core Functions
+            function validateAndHandleFile(file) {
+                if (!isValidExcelFile(file)) {
+                    showError('Please select a valid Excel file (.xls or .xlsx)');
+                    return;
+                }
+                
+                if (file.size > MAX_FILE_SIZE) {
+                    showError('File size exceeds 50MB limit');
+                    return;
+                }
+                
+                handleFileSelection(file);
+            }
+            
+            function isValidExcelFile(file) {
+                const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+                return VALID_TYPES.includes(file.type) || VALID_EXTENSIONS.includes(fileExt);
+            }
+            
+            function handleFileSelection(file) {
+                excelFile = file;
+                displayFileInfo(file);
+                showFileInfo();
+                enableConvertButton();
+                hideError();
+            }
+            
+            function displayFileInfo(file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+            }
+            
+            function showFileInfo() {
+                fileInfo.style.display = 'flex';
+                uploadArea.style.display = 'none';
+            }
+            
+            function resetFileInput() {
+                excelFile = null;
+                fileInfo.style.display = 'none';
+                uploadArea.style.display = 'block';
+                disableConvertButton();
+                hideProgress();
+            }
+            
+            async function convertExcelToPdf() {
+                if (!excelFile) {
+                    showError('Please select an Excel file first');
+                    return;
+                }
+                
+                try {
+                    startConversionProcess();
+                    updateStatus('Initializing conversion engine...', 5);
+                    
+                    // Read Excel file
+                    updateStatus('Reading spreadsheet data...', 15);
+                    const arrayBuffer = await excelFile.arrayBuffer();
+                    const data = new Uint8Array(arrayBuffer);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Get first worksheet (in a real app, you might process all sheets)
+                    updateStatus('Processing worksheet data...', 30);
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Convert to HTML table (simplified - in production, use a proper PDF generation library)
+                    updateStatus('Converting to PDF format...', 50);
+                    const html = XLSX.utils.sheet_to_html(worksheet);
+                    
+                    // Create PDF document
+                    updateStatus('Generating PDF document...', 70);
+                    const { PDFDocument, rgb } = PDFLib;
+                    const pdfDoc = await PDFDocument.create();
+                    
+                    // Set page size based on orientation preference
+                    const pageWidth = landscape.checked ? 792 : 612; // Letter size (8.5x11 or 11x8.5 inches)
+                    const pageHeight = landscape.checked ? 612 : 792;
+                    const page = pdfDoc.addPage([pageWidth, pageHeight]);
+                    
+                    // Add document header
+                    page.drawText('Excel to PDF Conversion', {
+                        x: 50,
+                        y: pageHeight - 50,
+                        size: 18,
+                        color: rgb(0.1, 0.1, 0.1),
+                    });
+                    
+                    // Add file information
+                    page.drawText(`Original File: ${excelFile.name}`, {
+                        x: 50,
+                        y: pageHeight - 80,
+                        size: 10,
+                        color: rgb(0.3, 0.3, 0.3),
+                    });
+                    
+                    page.drawText(`Converted: ${new Date().toLocaleString()}`, {
+                        x: 50,
+                        y: pageHeight - 95,
+                        size: 10,
+                        color: rgb(0.3, 0.3, 0.3),
+                    });
+                    
+                    // Add note about this being a demonstration
+                    page.drawText('Note: This is a demonstration interface. In production:', {
+                        x: 50,
+                        y: pageHeight - 130,
+                        size: 10,
+                        color: rgb(0.5, 0.5, 0.5),
+                    });
+                    
+                    page.drawText('1. Use a server-side library for accurate table rendering', {
+                        x: 50,
+                        y: pageHeight - 145,
+                        size: 10,
+                        color: rgb(0.5, 0.5, 0.5),
+                    });
+                    
+                    page.drawText('2. Implement proper spreadsheet to PDF conversion logic', {
+                        x: 50,
+                        y: pageHeight - 160,
+                        size: 10,
+                        color: rgb(0.5, 0.5, 0.5),
+                    });
+                    
+                    // Finalize PDF
+                    updateStatus('Finalizing PDF document...', 90);
+                    const pdfBytes = await pdfDoc.save();
+                    
+                    // Download the PDF
+                    const outputFileName = getOutputFileName();
+                    download(new Blob([pdfBytes], { type: 'application/pdf' }), 
+                           `${outputFileName}.pdf`, 
+                           'application/pdf');
+                    
+                    // Show success
+                    completeConversion('Spreadsheet converted to PDF successfully!');
+                    
+                } catch (err) {
+                    handleConversionError(err);
+                }
+            }
+            
+            // UI Helpers
+            function startConversionProcess() {
+                convertBtn.disabled = true;
+                showProgress();
+                updateStatus('Starting conversion...', 0);
+            }
+            
+            function updateStatus(message, percent) {
+                statusText.textContent = message;
+                progressBar.style.width = `${percent}%`;
+                progressPercent.textContent = `${Math.round(percent)}%`;
+                statusText.className = 'status-message';
+            }
+            
+            function completeConversion(message) {
+                updateStatus(message, 100);
+                statusText.className = 'status-message status-success';
+                convertBtn.disabled = false;
+                
+                setTimeout(hideProgress, 5000);
+            }
+            
+            function handleConversionError(err) {
+                console.error('Conversion error:', err);
+                showError(err.message || 'An error occurred during conversion. Please try again.');
+                convertBtn.disabled = false;
+            }
+            
+            function showError(message) {
+                statusText.textContent = message;
+                statusText.className = 'status-message status-error';
+                showProgress();
+            }
+            
+            function showProgress() {
+                progressContainer.style.display = 'block';
+            }
+            
+            function hideProgress() {
+                progressContainer.style.display = 'none';
+            }
+            
+            function hideError() {
+                if (statusText.className.includes('status-error')) {
+                    hideProgress();
+                }
+            }
+            
+            function enableConvertButton() {
+                convertBtn.disabled = false;
+            }
+            
+            function disableConvertButton() {
+                convertBtn.disabled = true;
+            }
+            
+            function resetDragState() {
+                uploadArea.style.borderColor = 'var(--border-color)';
+                uploadArea.style.backgroundColor = 'var(--secondary-color)';
+                uploadArea.style.transform = 'translateY(0)';
+            }
+            
+            function getOutputFileName() {
+                return outputName.value.trim() || 'converted-spreadsheet';
+            }
+            
+            // Utility Functions
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html>

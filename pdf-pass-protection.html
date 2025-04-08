@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Password Protector</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1D9D58;
+            --secondary-color: #2c3e50;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #333;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .main {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--medium-gray);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(29, 157, 88, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #168f4d;
+        }
+        
+        .btn:disabled {
+            background-color: var(--medium-gray);
+            cursor: not-allowed;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .input-group {
+            position: relative;
+            display: flex;
+        }
+        
+        input[type="password"], 
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .progress-container {
+            margin-top: 5px;
+            height: 4px;
+            background-color: var(--medium-gray);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-danger {
+            background-color: var(--error-color);
+        }
+        
+        .progress-warning {
+            background-color: var(--warning-color);
+        }
+        
+        .progress-success {
+            background-color: var(--success-color);
+        }
+        
+        .password-rules {
+            margin-top: 15px;
+        }
+        
+        .rule {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .rule-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .rule.valid {
+            color: var(--success-color);
+        }
+        
+        .rule.invalid {
+            color: var(--dark-gray);
+        }
+        
+        .checkbox-group {
+            margin-bottom: 15px;
+        }
+        
+        .checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox input {
+            margin-right: 10px;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            border-left: 4px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .file-info {
+            display: none;
+            background-color: var(--light-gray);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .main {
+                padding: 20px;
+            }
+            
+            .upload-area {
+                padding: 30px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">PDF Protector</a>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="main">
+            <h1>Protect PDF File</h1>
+            <p class="subtitle">Encrypt your PDF with a password to keep sensitive data confidential.</p>
+            
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📄</div>
+                <h3>Select PDF file</h3>
+                <p>or drag and drop file here</p>
+                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+            </div>
+            
+            <div class="file-info" id="fileInfo">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
+            </div>
+            
+            <div class="tab-container">
+                <div class="tab active" data-tab="basic">Basic Protection</div>
+                <div class="tab" data-tab="advanced">Advanced Protection</div>
+            </div>
+            
+            <div class="tab-content active" id="basic-tab">
+                <div class="form-group">
+                    <label for="userPassword">Password</label>
+                    <div class="input-group">
+                        <input type="password" id="userPassword" placeholder="Enter password">
+                        <span class="password-toggle" data-target="userPassword">👁️</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="passwordStrength"></div>
+                    </div>
+                    <div class="password-rules" id="passwordRules">
+                        <div class="rule invalid" data-rule="length">
+                            <span class="rule-icon">❌</span>
+                            At least 8 characters
+                        </div>
+                        <div class="rule invalid" data-rule="case">
+                            <span class="rule-icon">❌</span>
+                            Lowercase & uppercase letters
+                        </div>
+                        <div class="rule invalid" data-rule="number">
+                            <span class="rule-icon">❌</span>
+                            At least one number
+                        </div>
+                        <div class="rule invalid" data-rule="special">
+                            <span class="rule-icon">❌</span>
+                            At least one special character
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-group">
+                        <input type="password" id="confirmPassword" placeholder="Repeat password">
+                        <span class="password-toggle" data-target="confirmPassword">👁️</span>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning" id="passwordMismatch">
+                    Passwords do not match.
+                </div>
+            </div>
+            
+            <div class="tab-content" id="advanced-tab">
+                <div class="form-group">
+                    <label for="ownerPassword">Owner Password (optional)</label>
+                    <p><small>Password required to change permissions</small></p>
+                    <div class="input-group">
+                        <input type="password" id="ownerPassword" placeholder="Enter owner password">
+                        <span class="password-toggle" data-target="ownerPassword">👁️</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Permissions</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox">
+                            <input type="checkbox" id="disablePrint">
+                            <label for="disablePrint">Disable printing</label>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" id="disableModify">
+                            <label for="disableModify">Disable modification</label>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" id="disableCopy">
+                            <label for="disableCopy">Disable copying</label>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" id="disableAnnotate">
+                            <label for="disableAnnotate">Disable annotations</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Protecting your PDF...</p>
+            </div>
+            
+            <button class="btn" id="protectBtn" disabled>Protect PDF</button>
+        </div>
+    </div>
+    
+    <footer>
+        &copy; 2023 PDF Protector | Works entirely in your browser
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const passwordToggles = document.querySelectorAll('.password-toggle');
+            const userPassword = document.getElementById('userPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const ownerPassword = document.getElementById('ownerPassword');
+            const passwordStrength = document.getElementById('passwordStrength');
+            const passwordRules = document.getElementById('passwordRules').querySelectorAll('.rule');
+            const passwordMismatch = document.getElementById('passwordMismatch');
+            const protectBtn = document.getElementById('protectBtn');
+            const loading = document.getElementById('loading');
+            
+            // File handling
+            let selectedFile = null;
+            
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#1D9D58';
+                uploadArea.style.backgroundColor = 'rgba(29, 157, 88, 0.05)';
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.style.borderColor = '#e0e0e0';
+                uploadArea.style.backgroundColor = 'transparent';
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#e0e0e0';
+                uploadArea.style.backgroundColor = 'transparent';
+                
+                if (e.dataTransfer.files.length) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length) {
+                    handleFile(fileInput.files[0]);
+                }
+            });
+            
+            function handleFile(file) {
+                if (file.type !== 'application/pdf') {
+                    alert('Please select a PDF file.');
+                    return;
+                }
+                
+                selectedFile = file;
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+                checkFormValidity();
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+            }
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(`${this.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+            
+            // Password toggle visibility
+            passwordToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    const input = document.getElementById(targetId);
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                });
+            });
+            
+            // Password strength checker
+            userPassword.addEventListener('input', function() {
+                checkPasswordStrength(this.value);
+                checkPasswordMatch();
+                checkFormValidity();
+            });
+            
+            confirmPassword.addEventListener('input', checkPasswordMatch);
+            ownerPassword.addEventListener('input', checkFormValidity);
+            
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                const rules = {
+                    length: password.length >= 8,
+                    case: /[a-z]/.test(password) && /[A-Z]/.test(password),
+                    number: /\d/.test(password),
+                    special: /[!@#$%^&*]/.test(password)
+                };
+                
+                // Update rules UI
+                passwordRules.forEach(rule => {
+                    const ruleType = rule.dataset.rule;
+                    if (rules[ruleType]) {
+                        rule.classList.add('valid');
+                        rule.classList.remove('invalid');
+                        rule.querySelector('.rule-icon').textContent = '✓';
+                        strength++;
+                    } else {
+                        rule.classList.remove('valid');
+                        rule.classList.add('invalid');
+                        rule.querySelector('.rule-icon').textContent = '❌';
+                    }
+                });
+                
+                // Update strength meter
+                if (password.length === 0) {
+                    passwordStrength.style.width = '0%';
+                    passwordStrength.className = 'progress-bar';
+                    return;
+                }
+                
+                if (strength < 2) {
+                    passwordStrength.style.width = '25%';
+                    passwordStrength.className = 'progress-bar progress-danger';
+                } else if (strength === 2) {
+                    passwordStrength.style.width = '50%';
+                    passwordStrength.className = 'progress-bar progress-warning';
+                } else if (strength === 3) {
+                    passwordStrength.style.width = '75%';
+                    passwordStrength.className = 'progress-bar progress-warning';
+                } else {
+                    passwordStrength.style.width = '100%';
+                    passwordStrength.className = 'progress-bar progress-success';
+                }
+            }
+            
+            function checkPasswordMatch() {
+                if (userPassword.value && confirmPassword.value && userPassword.value !== confirmPassword.value) {
+                    passwordMismatch.style.display = 'block';
+                    return false;
+                } else {
+                    passwordMismatch.style.display = 'none';
+                    return true;
+                }
+            }
+            
+            function checkFormValidity() {
+                const isValid = selectedFile && 
+                               userPassword.value && 
+                               confirmPassword.value && 
+                               userPassword.value === confirmPassword.value;
+                
+                protectBtn.disabled = !isValid;
+            }
+            
+            // Protect PDF button
+            protectBtn.addEventListener('click', async function() {
+                if (!selectedFile) return;
+                if (!checkPasswordMatch()) return;
+                
+                loading.style.display = 'block';
+                protectBtn.disabled = true;
+                
+                try {
+                    // Read the file
+                    const arrayBuffer = await readFileAsArrayBuffer(selectedFile);
+                    
+                    // Load the PDF
+                    const { PDFDocument } = PDFLib;
+                    const pdfDoc = await PDFDocument.load(arrayBuffer);
+                    
+                    // Set permissions
+                    const permissions = {
+                        printing: document.getElementById('disablePrint').checked ? 'lowResolution' : 'highResolution',
+                        modifying: !document.getElementById('disableModify').checked,
+                        copying: !document.getElementById('disableCopy').checked,
+                        annotating: !document.getElementById('disableAnnotate').checked,
+                        fillingForms: true,
+                        contentAccessibility: true,
+                        documentAssembly: true
+                    };
+                    
+                    // Encrypt the PDF
+                    await pdfDoc.encrypt({
+                        userPassword: userPassword.value,
+                        ownerPassword: ownerPassword.value || userPassword.value,
+                        permissions: permissions
+                    });
+                    
+                    // Save the encrypted PDF
+                    const protectedPdfBytes = await pdfDoc.save();
+                    
+                    // Download the file
+                    const blob = new Blob([protectedPdfBytes], { type: 'application/pdf' });
+                    saveAs(blob, `protected_${selectedFile.name}`);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while protecting the PDF. Please try again.');
+                } finally {
+                    loading.style.display = 'none';
+                    protectBtn.disabled = false;
+                }
+            });
+            
+            function readFileAsArrayBuffer(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

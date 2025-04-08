@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Tools - All in One Place</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <span style="color: #ff1702fe; font-weight: 700; font-size: 1.8rem">Toolas</span>
+            <sup style="color: #bc2d2d; font-size: 0.8rem">PDF</sup>
+        </div>
+        <div class="nav-container">
+            <div class="nav-links">
+                <div class="nav-item">
+                    <a href="merg.html" onclick="window.location.href='merg.html'">MERGE PDF</a>
+                </div>
+                <div class="nav-item">
+                    <a href="slipt.html" onclick="window.location.href='split.html'">SPLIT PDF</a>
+                </div>
+                <div class="nav-item">
+                    <a href="compress.html" onclick="window.location.href='compress.html'">COMPRESS PDF</a>
+                </div>
+                <div class="nav-item">
+                    <a href="pdfa-converter.html" class="dropdown-toggle" onclick="window.location.href='pdfa-converter.html'">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span class="dropdown-toggle-text">CONVERT PDF</span>
+                        <span class="dropdown-arrow"></span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-columns">
+                            <div class="dropdown-column">
+                                <h4>CONVERT TO PDF</h4>
+                                <ul class="tools-list">
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='jpg-to-pdf.html'">
+                                            <div class="tool-icon jpg-icon">
+                                                <i class="fas fa-file-image"></i>
+                                            </div>
+                                            <span class="tool-name">JPG to PDF</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='word-to-pdf.html'">
+                                            <div class="tool-icon word-icon">
+                                                <i class="fas fa-file-word"></i>
+                                            </div>
+                                            <span class="tool-name">WORD to PDF</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='ppt to pdf.html'">
+                                            <div class="tool-icon ppt-icon">
+                                                <i class="fas fa-file-powerpoint"></i>
+                                            </div>
+                                            <span class="tool-name">POWERPOINT to PDF</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='excel to pdf.html'">
+                                            <div class="tool-icon excel-icon">
+                                                <i class="fas fa-file-excel"></i>
+                                            </div>
+                                            <span class="tool-name">EXCEL to PDF</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='html-to-pdf.html'">
+                                            <div class="tool-icon html-icon">
+                                                <i class="fab fa-html5"></i>
+                                            </div>
+                                            <span class="tool-name">HTML to PDF</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="dropdown-column">
+                                <h4>CONVERT FROM PDF</h4>
+                                <ul class="tools-list">
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='pdf to jpg.html'">
+                                            <div class="tool-icon jpg-icon">
+                                                <i class="fas fa-file-image"></i>
+                                            </div>
+                                            <span class="tool-name">PDF to JPG</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='pdf to word.html'">
+                                            <div class="tool-icon word-icon">
+                                                <i class="fas fa-file-word"></i>
+                                            </div>
+                                            <span class="tool-name">PDF to WORD</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='pdf to ppt.html'">
+                                            <div class="tool-icon ppt-icon">
+                                                <i class="fas fa-file-powerpoint"></i>
+                                            </div>
+                                            <span class="tool-name">PDF to POWERPOINT</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='pdf to excel.html'">
+                                            <div class="tool-icon excel-icon">
+                                                <i class="fas fa-file-excel"></i>
+                                            </div>
+                                            <span class="tool-name">PDF to EXCEL</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="tool-option" onclick="window.location.href='pdf-to-pdfa.html'">
+                                            <div class="tool-icon pdf-icon">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </div>
+                                            <span class="tool-name">PDF to PDF/A</span>
+                                            <i class="fas fa-chevron-right arrow-icon"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <a href="#" class="dropdown-toggle" onclick="return false;">
+                        <i class="fas fa-tools"></i>
+                        <span class="dropdown-toggle-text">ALL PDF TOOLS</span>
+                        <span class="dropdown-arrow"></span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <div class="tools-column">
+                            <ul class="tools-list">
+                                <li>
+                                    <a href="#" class="tool-option" onclick="window.location.href='merg.html'">
+                                        <div class="tool-icon merge-icon">
+                                            <i class="fas fa-object-group"></i>
+                                        </div>
+                                        <span class="tool-name">Merge PDF</span>
+                                        <i class="fas fa-chevron-right arrow-icon"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="tool-option" onclick="window.location.href='split.html'">
+                                        <div class="tool-icon split-icon">
+                                            <i class="fas fa-cut"></i>
+                                        </div>
+                                        <span class="tool-name">Split PDF</span>
+                                        <i class="fas fa-chevron-right arrow-icon"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="tool-option" onclick="window.location.href='compress.html'">
+                                        <div class="tool-icon compress-icon">
+                                            <i class="fas fa-compress-alt"></i>
+                                        </div>
+                                        <span class="tool-name">Compress PDF</span>
+                                        <i class="fas fa-chevron-right arrow-icon"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="tool-option" onclick="window.location.href='edit.html'">
+                                        <div class="tool-icon edit-icon">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                        <span class="tool-name">Edit PDF</span>
+                                        <i class="fas fa-chevron-right arrow-icon"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="tool-option" onclick="window.location.href='rotate.html'">
+                                        <div class="tool-icon rotate-icon">
+                                            <i class="fas fa-redo"></i>
+                                        </div>
+                                        <span class="tool-name">Rotate PDF</span>
+                                        <i class="fas fa-chevron-right arrow-icon"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="tool-option" onclick="window.location.href='unlock.html'">
+                                        <div class="tool-icon unlock-icon">
+                                            <i class="fas fa-lock-open"></i>
+                                        </div>
+                                        <span class="tool-name">Unlock PDF</span>
+                                        <i class="fas fa-chevron-right arrow-icon"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="tool-option" onclick="window.location.href='watermark.html'">
+                                        <div class="tool-icon watermark-icon">
+                                            <i class="fas fa-stamp"></i>
+                                        </div>
+                                        <span class="tool-name">Watermark PDF</span>
+                                        <i class="fas fa-chevron-right arrow-icon"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-right">
+                <button class="signup-btn" onclick="window.location.href='login.html'">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </button>
+                <div class="account-dropdown">
+                    <button class="account-btn" onclick="toggleAccountMenu()">
+                        <i class="fas fa-user"></i>
+                        <span>Account</span>
+                    </button>
+                    <div class="account-menu">
+                        <a href="login.html" onclick="window.location.href='login.html'">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Login</span>
+                        </a>
+                        <a href="#" onclick="window.location.href='help.html'">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Help</span>
+                        </a>
+                        <a href="#" onclick="window.location.href='settings.html'">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" onclick="window.location.href='feedback.html'">
+                            <i class="fas fa-comment-alt"></i>
+                            <span>Feedback</span>
+                        </a>
+                        <div class="divider"></div>
+                        <a href="#" onclick="window.location.href='about.html'">
+                            <i class="fas fa-info-circle"></i>
+                            <span>About</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <span class="menu-line"></span>
+                    <span class="menu-line"></span>
+                    <span class="menu-line"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1>Every tool you need to work with PDFs in one place</h1>
+            <p>Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split,
+                compress, convert, rotate, unlock and watermark PDFs with just a few clicks.</p>
+        </div>
+
+        <div class="tools-grid">
+            <!-- Merge PDF -->
+            <div class="tool-card merge-card" onclick="window.location.href='merg.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-object-group"></i>
+                </div>
+                <h2>Merge PDF</h2>
+                <p>Combine multiple PDFs into one document in seconds.</p>
+            </div>
+
+            <!-- Split PDF -->
+            <div class="tool-card split-card" onclick="window.location.href='split.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-cut"></i>
+                </div>
+                <h2>Split PDF</h2>
+                <p>Divide a PDF into separate documents by pages or sections.</p>
+            </div>
+
+            <!-- Compress PDF -->
+            <div class="tool-card compress-card" onclick="window.location.href='compress.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-compress-alt"></i>
+                </div>
+                <h2>Compress PDF</h2>
+                <p>Reduce PDF file size without losing quality.</p>
+            </div>
+
+            <!-- PDF to Word -->
+            <div class="tool-card word-card" onclick="window.location.href='pdf to word.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-word"></i>
+                </div>
+                <h2>PDF to Word</h2>
+                <p>Convert PDFs to editable Word documents.</p>
+            </div>
+
+            <!-- PDF to Excel -->
+            <div class="tool-card excel-card" onclick="window.location.href='pdf to excel.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-excel"></i>
+                </div>
+                <h2>PDF to Excel</h2>
+                <p>Extract tables from PDFs to Excel spreadsheets.</p>
+            </div>
+
+            <!-- Word to PDF -->
+            <div class="tool-card word-card" onclick="window.location.href='word-to-pdf.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h2>Word to PDF</h2>
+                <p>Convert Word documents to professional PDFs.</p>
+            </div>
+
+            <!-- PowerPoint to PDF -->
+            <div class="tool-card ppt-card" onclick="window.location.href='ppt to pdf.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-powerpoint"></i>
+                </div>
+                <h2>PPT to PDF</h2>
+                <p>Convert presentations to PDF format.</p>
+            </div>
+
+            <!-- Excel to PDF -->
+            <div class="tool-card excel-card" onclick="window.location.href='excel to pdf.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h2>Excel to PDF</h2>
+                <p>Convert spreadsheets to PDF documents.</p>
+            </div>
+
+            <!-- PDF to PowerPoint -->
+            <div class="tool-card ppt-card" onclick="window.location.href='pdf to ppt.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-powerpoint"></i>
+                </div>
+                <h2>PDF to PPT</h2>
+                <p>Convert PDFs to editable PowerPoint files.</p>
+            </div>
+
+            <!-- Edit PDF -->
+            <div class="tool-card edit-card" onclick="window.location.href='edit.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h2>Edit PDF</h2>
+                <p>Modify text, images, and pages in your PDF.</p>
+            </div>
+
+            <!-- Rotate PDF -->
+            <div class="tool-card rotate-card" onclick="window.location.href='rotate.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-redo"></i>
+                </div>
+                <h2>Rotate PDF</h2>
+                <p>Fix page orientation with one click.</p>
+            </div>
+
+            <!-- Unlock PDF -->
+            <div class="tool-card unlock-card" onclick="window.location.href='unlock.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-lock-open"></i>
+                </div>
+                <h2>Unlock PDF</h2>
+                <p>Remove password protection from PDF files.</p>
+            </div>
+
+            <!-- Watermark PDF -->
+            <div class="tool-card watermark-card" onclick="window.location.href='watermark.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-stamp"></i>
+                </div>
+                <h2>Watermark PDF</h2>
+                <p>Add text or image watermarks to documents.</p>
+            </div>
+
+            <!-- JPG to PDF -->
+            <div class="tool-card jpg-card" onclick="window.location.href='jpg-to-pdf.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-image"></i>
+                </div>
+                <h2>JPG to PDF</h2>
+                <p>Convert images to PDF documents.</p>
+            </div>
+
+            <!-- PDF to JPG -->
+            <div class="tool-card jpg-card" onclick="window.location.href='pdf to jpg.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h2>PDF to JPG</h2>
+                <p>Extract images from PDF files.</p>
+            </div>
+
+            <!-- PDF/A Converter -->
+            <div class="tool-card pdfa-card" onclick="window.location.href='pdf-to-pdfa.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-archive"></i>
+                </div>
+                <h2>PDF/A Converter</h2>
+                <p>Convert to archival PDF format for long-term preservation.</p>
+            </div>
+
+            <!-- OCR PDF -->
+            <div class="tool-card ocr-card" onclick="window.location.href='ocr pdf.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h2>OCR PDF</h2>
+                <p>Convert scanned documents to searchable PDFs.</p>
+            </div>
+            <div class="tool-card pdfa-card" onclick="window.location.href='pdf-to-pdfa.html'">
+                <div class="tool-card-icon">
+                    <i class="fas fa-file-archive"></i>
+                </div>
+                <h2>PDF to PDF/A</h2>
+                <p>Convert to archival PDF format for long-term preservation.</p>
+            </div>
+
+            <!-- HTML to PDF -->
+            <div class="tool-card html-card" onclick="window.location.href='html-to-pdf.html'">
+                <div class="tool-card-icon">
+                    <i class="fab fa-html5"></i>
+                </div>
+                <h2>HTML to PDF</h2>
+                <p>Convert web pages to PDF documents with perfect formatting.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-about">
+                <div class="footer-logo">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>PDF Tools</span>
+                </div>
+                <p>All the tools you'll need to work with PDF files for free. Merge, split, compress, convert and edit
+                    PDFs with ease.</p>
+                <div class="social-links">
+                    <a href="#" onclick="window.location.href='https://facebook.com'"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" onclick="window.location.href='https://twitter.com'"><i class="fab fa-twitter"></i></a>
+                    <a href="#" onclick="window.location.href='https://instagram.com'"><i class="fab fa-instagram"></i></a>
+                    <a href="#" onclick="window.location.href='https://linkedin.com'"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <h3>PDF Tools</h3>
+                <ul>
+                    <li><a href="#" onclick="window.location.href='merge.html'">Merge PDF</a></li>
+                    <li><a href="#" onclick="window.location.href='split.html'">Split PDF</a></li>
+                    <li><a href="#" onclick="window.location.href='compress.html'">Compress PDF</a></li>
+                    <li><a href="#" onclick="window.location.href='pdf-to-word.html'">PDF to Word</a></li>
+                    <li><a href="#" onclick="window.location.href='pdf-to-excel.html'">PDF to Excel</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h3>Other Tools</h3>
+                <ul>
+                    <li><a href="#" onclick="window.location.href='word-to-pdf.html'">Word to PDF</a></li>
+                    <li><a href="#" onclick="window.location.href='excel-to-pdf.html'">Excel to PDF</a></li>
+                    <li><a href="#" onclick="window.location.href='ppt-to-pdf.html'">PPT to PDF</a></li>
+                    <li><a href="#" onclick="window.location.href='edit.html'">Edit PDF</a></li>
+                    <li><a href="#" onclick="window.location.href='unlock.html'">Unlock PDF</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#" onclick="window.location.href='about.html'">About Us</a></li>
+                    <li><a href="#" onclick="window.location.href='privacy.html'">Privacy Policy</a></li>
+                    <li><a href="#" onclick="window.location.href='terms.html'">Terms of Service</a></li>
+                    <li><a href="#" onclick="window.location.href='contact.html'">Contact Us</a></li>
+                    <li><a href="#" onclick="window.location.href='help.html'">Help Center</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2023 PDF Tools. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
